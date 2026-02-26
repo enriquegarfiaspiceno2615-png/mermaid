@@ -1,0 +1,116 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Biblioteca {
+
+    private ArrayList<Libro> libros = new ArrayList<>();
+    private ArrayList<Usuario> usuarios = new ArrayList<>();
+    private ArrayList<Prestamo> prestamos = new ArrayList<>();
+
+    Scanner sc = new Scanner(System.in);
+
+    public void registrarLibro() {
+        System.out.print("Título: ");
+        String titulo = sc.nextLine();
+        System.out.print("Autor: ");
+        String autor = sc.nextLine();
+        System.out.print("Cantidad disponible: ");
+        int cantidad = sc.nextInt();
+        sc.nextLine();
+
+        if (cantidad >= 0) {
+            libros.add(new Libro(titulo, autor, cantidad));
+            System.out.println("Libro registrado correctamente.");
+        } else {
+            System.out.println("Cantidad inválida.");
+        }
+    }
+
+    public void registrarUsuario() {
+        System.out.print("Nombre: ");
+        String nombre = sc.nextLine();
+        System.out.print("ID: ");
+        String id = sc.nextLine();
+
+        usuarios.add(new Usuario(nombre, id));
+        System.out.println("Usuario registrado correctamente.");
+    }
+
+    public void realizarPrestamo() {
+        System.out.print("ID Usuario: ");
+        String id = sc.nextLine();
+        System.out.print("Título Libro: ");
+        String titulo = sc.nextLine();
+
+        Usuario usuario = null;
+        Libro libro = null;
+
+        for (Usuario u : usuarios) {
+            if (u.getId().equals(id)) {
+                usuario = u;
+            }
+        }
+
+        for (Libro l : libros) {
+            if (l.getTitulo().equalsIgnoreCase(titulo)) {
+                libro = l;
+            }
+        }
+
+        if (usuario == null || libro == null) {
+            System.out.println("Usuario o libro no encontrado.");
+            return;
+        }
+
+        if (!usuario.puedePedirPrestado()) {
+            System.out.println("El usuario ya tiene 2 libros prestados.");
+            return;
+        }
+
+        if (libro.getCantidadDisponible() <= 0) {
+            System.out.println("No hay libros disponibles.");
+            return;
+        }
+
+        libro.prestarLibro();
+        Prestamo p = new Prestamo(usuario, libro);
+        prestamos.add(p);
+        usuario.agregarPrestamo(p);
+
+        System.out.println("Préstamo realizado correctamente.");
+    }
+
+    public void generarReporte() {
+        System.out.println("\n--- REPORTE BIBLIOTECA ---");
+        System.out.println("Total libros: " + libros.size());
+        System.out.println("Total usuarios: " + usuarios.size());
+        System.out.println("Total préstamos: " + prestamos.size());
+    }
+
+    public void menu() {
+        int opcion;
+        do {
+            System.out.println("\n1. Registrar Libro");
+            System.out.println("2. Registrar Usuario");
+            System.out.println("3. Realizar Préstamo");
+            System.out.println("4. Generar Reporte");
+            System.out.println("5. Salir");
+            opcion = sc.nextInt();
+            sc.nextLine();
+
+            switch (opcion) {
+                case 1 -> registrarLibro();
+                case 2 -> registrarUsuario();
+                case 3 -> realizarPrestamo();
+                case 4 -> generarReporte();
+                case 5 -> System.out.println("Saliendo...");
+                default -> System.out.println("Opción inválida.");
+            }
+        } while (opcion != 5);
+    }
+
+    public static void main(String[] args) {
+        Biblioteca b = new Biblioteca();
+        b.menu();
+    }
+}
